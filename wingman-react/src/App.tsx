@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiGet } from './api';
+import { ACCESS_SIGN_IN_INSTRUCTIONS, apiGet } from './api';
 
 function App() {
   const [message, setMessage] = useState<string>('Loading…');
@@ -14,7 +14,15 @@ function App() {
       })
       .catch((err) => {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : String(err));
+        const message = err instanceof Error ? err.message : String(err);
+        if (
+          err instanceof TypeError ||
+          (err instanceof Error && /Failed to fetch/i.test(err.message))
+        ) {
+          setError(ACCESS_SIGN_IN_INSTRUCTIONS);
+          return;
+        }
+        setError(message);
       });
     return () => {
       cancelled = true;
